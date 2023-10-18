@@ -6,11 +6,15 @@
  * Fourth Task – calculates the average value. All this tasks should print the values to console.
  */
 using System;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace MultiThreading.Task2.Chaining
 {
     class Program
     {
+        private static readonly Random Random = new Random();
+
         static void Main(string[] args)
         {
             Console.WriteLine(".Net Mentoring Program. MultiThreading V1 ");
@@ -21,9 +25,47 @@ namespace MultiThreading.Task2.Chaining
             Console.WriteLine("Fourth Task – calculates the average value. All this tasks should print the values to console");
             Console.WriteLine();
 
-            // feel free to add your code
+            Task<int[]> firstTask = Task.Factory.StartNew(CreateRandomArray);
+            Task<int[]> secondTask = firstTask.ContinueWith(t => MultiplyArray(t.Result));
+            Task<int[]> thirdTask = secondTask.ContinueWith(t => SortArray(t.Result));
+            Task fourthTask = thirdTask.ContinueWith(t => CalculateAverage(t.Result));
 
             Console.ReadLine();
+        }
+
+        static int[] CreateRandomArray()
+        {
+            var array = new int[10];
+            for (int i = 0; i < array.Length; i++)
+            {
+                array[i] = Random.Next(0, 100);
+            }
+            Console.WriteLine($"Created array: {string.Join(", ", array)}");
+            return array;
+        }
+
+        static int[] MultiplyArray(int[] array)
+        {
+            int multiplier = Random.Next(1, 10);
+            for (int i = 0; i < array.Length; i++)
+            {
+                array[i] *= multiplier;
+            }
+            Console.WriteLine($"Array after multiplication by {multiplier}: {string.Join(", ", array)}");
+            return array;
+        }
+
+        static int[] SortArray(int[] array)
+        {
+            Array.Sort(array);
+            Console.WriteLine($"Sorted array: {string.Join(", ", array)}");
+            return array;
+        }
+
+        static void CalculateAverage(int[] array)
+        {
+            double average = array.Average();
+            Console.WriteLine($"Average value: {average}");
         }
     }
 }
