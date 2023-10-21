@@ -10,11 +10,15 @@
  */
 
 using System;
+using System.Threading;
 
 namespace MultiThreading.Task4.Threads.Join
 {
     class Program
     {
+        private const int MaxThreads = 10;
+        private static Semaphore _semaphore = new Semaphore(0, MaxThreads);
+
         static void Main(string[] args)
         {
             Console.WriteLine("4.	Write a program which recursively creates 10 threads.");
@@ -26,9 +30,48 @@ namespace MultiThreading.Task4.Threads.Join
 
             Console.WriteLine();
 
-            // feel free to add your code
+            Console.WriteLine("Using Thread class:");
+            Thread thread = new Thread(ThreadFunction);
+            thread.Start(MaxThreads);
+            thread.Join();
+
+            Console.WriteLine();
+
+            Console.WriteLine("Using ThreadPool:");
+            ThreadPool.QueueUserWorkItem(ThreadPoolFunction, MaxThreads);
+            _semaphore.WaitOne();
 
             Console.ReadLine();
+        }
+
+        static void ThreadFunction(object state)
+        {
+            int number = (int)state;
+
+            Console.WriteLine($"Thread number: {number}");
+
+            if (number > 1)
+            {
+                Thread thread = new Thread(ThreadFunction);
+                thread.Start(number - 1);
+                thread.Join();
+            }
+        }
+
+        static void ThreadPoolFunction(object state)
+        {
+            int number = (int)state;
+
+            Console.WriteLine($"Thread number: {number}");
+
+            if (number > 1)
+            {
+                ThreadPool.QueueUserWorkItem(ThreadPoolFunction, number - 1);
+            }
+            else
+            {
+                _semaphore.Release();
+            }
         }
     }
 }
