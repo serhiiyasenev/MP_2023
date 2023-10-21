@@ -18,8 +18,29 @@ namespace MultiThreading.Task3.MatrixMultiplier.Tests
         [TestMethod]
         public void ParallelEfficiencyTest()
         {
-            // todo: implement a test method to check the size of the matrix which makes parallel multiplication more effective than
-            // todo: the regular one
+            const int startSize = 3;
+            const int endSize = 300;
+            const int step = 3;
+
+            for (int size = startSize; size <= endSize; size += step)
+            {
+                var matrix1 = new Matrix(size, size, true);
+                var matrix2 = new Matrix(size, size, true);
+
+                var regularMultiplier = new MatricesMultiplier();
+                var parallelMultiplier = new MatricesMultiplierParallel();
+
+                var regularTime = MeasureTime(() => regularMultiplier.Multiply(matrix1, matrix2));
+                var parallelTime = MeasureTime(() => parallelMultiplier.Multiply(matrix1, matrix2));
+
+                Console.WriteLine($"Matrix size: {size}. Regular time: {regularTime}. Parallel time: {parallelTime}.");
+
+                if (parallelTime < regularTime)
+                {
+                    Console.WriteLine($"Parallel multiplication is faster for matrix size: {size}");
+                    break;
+                }
+            }
         }
 
         #region private methods
@@ -69,6 +90,14 @@ namespace MultiThreading.Task3.MatrixMultiplier.Tests
             Assert.AreEqual(109, multiplied.GetElement(2, 0));
             Assert.AreEqual(213, multiplied.GetElement(2, 1));
             Assert.AreEqual(728, multiplied.GetElement(2, 2));
+        }
+
+        private TimeSpan MeasureTime(Action action)
+        {
+            var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+            action();
+            stopwatch.Stop();
+            return stopwatch.Elapsed;
         }
 
         #endregion

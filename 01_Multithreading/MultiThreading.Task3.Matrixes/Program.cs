@@ -16,28 +16,35 @@ namespace MultiThreading.Task3.MatrixMultiplier
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("3.	Write a program, which multiplies two matrices and uses class Parallel. ");
+            Console.WriteLine("3. Multiplies two matrices and uses class Parallel.");
             Console.WriteLine();
 
-            const byte matrixSize = 7; // todo: use any number you like or enter from console
-            CreateAndProcessMatrices(matrixSize);
+            byte[] matrixSize = {3, 7, 10, 15, 50, 100 };
+            foreach (var matrix in matrixSize)
+            {
+                CreateAndProcessMatrices(matrix);
+            }
             Console.ReadLine();
         }
 
         private static void CreateAndProcessMatrices(byte sizeOfMatrix)
         {
             Console.WriteLine("Multiplying...");
-            var firstMatrix = new Matrix(sizeOfMatrix, sizeOfMatrix);
-            var secondMatrix = new Matrix(sizeOfMatrix, sizeOfMatrix);
+            var firstMatrix = new Matrix(sizeOfMatrix, sizeOfMatrix, true);
+            var secondMatrix = new Matrix(sizeOfMatrix, sizeOfMatrix, true);
 
             IMatrix resultMatrix = new MatricesMultiplier().Multiply(firstMatrix, secondMatrix);
+            IMatrix resultMatrixParallel = new MatricesMultiplierParallel().Multiply(firstMatrix, secondMatrix);
 
-            Console.WriteLine("firstMatrix:");
+            Console.WriteLine($"firstMatrix size '{sizeOfMatrix}':");
             firstMatrix.Print();
-            Console.WriteLine("secondMatrix:");
+            Console.WriteLine($"secondMatrix size '{sizeOfMatrix}':");
             secondMatrix.Print();
-            Console.WriteLine("resultMatrix:");
+
+            Console.WriteLine($"resultMatrix size '{sizeOfMatrix}':");
             resultMatrix.Print();
+            Console.WriteLine($"resultMatrixParallel size '{sizeOfMatrix}':");
+            resultMatrixParallel.Print();
         }
     }
 }
