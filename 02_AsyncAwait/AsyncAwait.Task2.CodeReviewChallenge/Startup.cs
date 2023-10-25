@@ -35,14 +35,17 @@ public class Startup
         services.AddSingleton<IPrivacyDataService, PrivacyDataService>();
         services.AddScoped<IAssistant, ManualAssistant>();
 
-        services.AddMvc(options => options.EnableEndpointRouting = false);
+        services.AddControllersWithViews(options => options.EnableEndpointRouting = false);
     }
 
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
     {
-        if (false && env.IsDevelopment())
-            app.UseDeveloperExceptionPage();
+        if (env.IsDevelopment())
+        {
+            app.UseDeveloperExceptionPage(); 
+        }
+
         app.UseExceptionHandler("/Home/Error");
 
         app.UseStatistic();
