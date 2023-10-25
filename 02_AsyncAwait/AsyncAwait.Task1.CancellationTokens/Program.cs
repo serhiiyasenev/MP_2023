@@ -15,7 +15,8 @@ namespace AsyncAwait.Task1.CancellationTokens;
 
 internal class Program
 {
-    private static CancellationTokenSource _cts;
+    private static CancellationTokenSource _cts = new CancellationTokenSource();
+    private static Task<long> _currentCalculationTask;
 
     /// <summary>
     /// The Main method should not be changed at all.
@@ -35,7 +36,6 @@ internal class Program
         {
             if (int.TryParse(input, out var n))
             {
-                _cts?.Cancel();
                 CalculateSum(n);
             }
             else
@@ -53,17 +53,23 @@ internal class Program
 
     private static async void CalculateSum(int n)
     {
+        _cts.Cancel();
         _cts = new CancellationTokenSource();
 
         try
         {
             await Console.Out.WriteLineAsync($"The task for {n} started... Enter N to cancel the request:");
-            var sum = await Task.Run(() => Calculator.Calculate(n, _cts.Token), _cts.Token);
+            _currentCalculationTask = Task.Run(() => Calculator.Calculate(n, _cts.Token));
+            var sum = await _currentCalculationTask;
             await Console.Out.WriteLineAsync($"Sum for {n} = {sum}.");
         }
         catch (OperationCanceledException)
         {
             await Console.Out.WriteLineAsync($"Sum for {n} cancelled...");
+        }
+        catch (OverflowException e)
+        {
+            await Console.Out.WriteLineAsync(e.Message);
         }
         finally
         {
