@@ -8,11 +8,16 @@
 */
 
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace AsyncAwait.Task1.CancellationTokens;
 
 internal class Program
 {
+    private static CancellationTokenSource _cts = new CancellationTokenSource();
+    private static Task<long> _currentCalculationTask;
+
     /// <summary>
     /// The Main method should not be changed at all.
     /// </summary>
@@ -46,16 +51,30 @@ internal class Program
         Console.ReadLine();
     }
 
-    private static void CalculateSum(int n)
+    private static async void CalculateSum(int n)
     {
-        // todo: make calculation asynchronous
-        var sum = Calculator.Calculate(n);
-        Console.WriteLine($"Sum for {n} = {sum}.");
-        Console.WriteLine();
-        Console.WriteLine("Enter N: ");
-        // todo: add code to process cancellation and uncomment this line    
-        // Console.WriteLine($"Sum for {n} cancelled...");
+        _cts.Cancel();
+        _cts = new CancellationTokenSource();
 
-        Console.WriteLine($"The task for {n} started... Enter N to cancel the request:");
+        try
+        {
+            await Console.Out.WriteLineAsync($"The task for {n} started... Enter N to cancel the request:");
+            _currentCalculationTask = Task.Run(() => Calculator.Calculate(n, _cts.Token));
+            var sum = await _currentCalculationTask;
+            await Console.Out.WriteLineAsync($"Sum for {n} = {sum}.");
+        }
+        catch (OperationCanceledException)
+        {
+            await Console.Out.WriteLineAsync($"Sum for {n} cancelled...");
+        }
+        catch (OverflowException e)
+        {
+            await Console.Out.WriteLineAsync(e.Message);
+        }
+        finally
+        {
+            await Console.Out.WriteLineAsync();
+            await Console.Out.WriteLineAsync("Enter N: ");
+        }
     }
 }
