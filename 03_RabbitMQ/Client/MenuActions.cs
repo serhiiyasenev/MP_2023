@@ -20,7 +20,7 @@ namespace Client
 
         public static async Task SendDateTimeMessageAsync()
         {
-            var message = $"New Message ID {Guid.NewGuid()}";
+            var message = $"New Message '{DateTime.UtcNow}'";
             var responseMessage = await httpClient.SendAsync(new HttpRequestMessage(HttpMethod.Post, $"Queue/PostMessageToQueue").AddContent(new SendRequestModel { Message = message }));
             var responseModel = await responseMessage.GetModelAsync<SendResultModel>();
 
