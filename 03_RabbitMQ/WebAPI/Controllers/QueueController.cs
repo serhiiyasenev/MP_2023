@@ -1,6 +1,7 @@
 using BusinessLayer.Interfaces;
 using BusinessLayer.Models;
 using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
 
 namespace WebAPI.Controllers
 {
@@ -17,7 +18,7 @@ namespace WebAPI.Controllers
 
         [HttpPost("PostMessageToQueue")]
         [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
-        public async Task<ActionResult<SendResultModel>> PostMessageToQueue([FromBody] SendRequestModel message)
+        public async Task<ActionResult<SendResultModel>> PostMessageToQueue([Required] SendRequestModel message)
         {
             var result = await _queueService.PostMessageAsync(message);
             return Ok(result);
@@ -25,9 +26,9 @@ namespace WebAPI.Controllers
 
         [HttpPost("PostFileToQueue")]
         [ProducesResponseType(typeof(SendResultModel), StatusCodes.Status200OK)]
-        public async Task<ActionResult<SendResultModel>> PostFileToQueue([FromForm] IFormFile file)
+        public async Task<ActionResult<SendResultModel>> PostFileToQueue([Required] IFormFile file)
         {
-            if (file.Length > 0 && file.FileName.EndsWith(".pdf"))
+            if (file.Length > 0 && file.FileName.EndsWith(".pdf") && file.Length <= 5 * 1024 * 1024)
             {
                 var result = await _queueService.PostFileAsync(file.OpenReadStream());
                 return Ok(result);

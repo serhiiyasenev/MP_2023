@@ -9,6 +9,7 @@ namespace BusinessLayer.Services
     {
         readonly string ExchangeName = "TestExchange";
         readonly string RoutingKey = "key";
+        readonly string AmqpUri = "amqp://guest:guest@localhost:5672";
 
         public async Task<SendResultModel> PostMessageAsync(SendRequestModel sendRequestModel)
         {
@@ -16,7 +17,7 @@ namespace BusinessLayer.Services
             {
                 try
                 {
-                    var factory = new ConnectionFactory { Uri = new Uri("amqp://guest:guest@localhost:5672") };
+                    var factory = new ConnectionFactory { Uri = new Uri(AmqpUri) };
 
                     using (var connection = factory.CreateConnection())
                     using (var channel = connection.CreateModel())
@@ -43,7 +44,7 @@ namespace BusinessLayer.Services
             {
                 try
                 {
-                    var factory = new ConnectionFactory { Uri = new Uri("amqp://guest:guest@localhost:5672") };
+                    var factory = new ConnectionFactory { Uri = new Uri(AmqpUri) };
 
                     using (var connection = factory.CreateConnection())
                     using (var channel = connection.CreateModel())
@@ -62,7 +63,8 @@ namespace BusinessLayer.Services
 
                         using (var memoryStream = new MemoryStream())
                         {
-                            fileStream.CopyTo(memoryStream);
+                            fileStream.Seek(0, SeekOrigin.Begin);
+                            fileStream.CopyToAsync(memoryStream);
                             var fileContent = memoryStream.ToArray();
                             channel.BasicPublish(exchange: ExchangeName,
                                                  routingKey: queueName,
