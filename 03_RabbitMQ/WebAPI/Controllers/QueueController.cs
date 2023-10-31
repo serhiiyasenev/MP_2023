@@ -22,5 +22,17 @@ namespace WebAPI.Controllers
             var result = await _queueService.PostMessageAsync(message);
             return Ok(result);
         }
+
+        [HttpPost("PostFileToQueue")]
+        [ProducesResponseType(typeof(SendResultModel), StatusCodes.Status200OK)]
+        public async Task<ActionResult<SendResultModel>> PostFileToQueue([FromForm] IFormFile file)
+        {
+            if (file.Length > 0 && file.FileName.EndsWith(".pdf"))
+            {
+                var result = await _queueService.PostFileAsync(file.OpenReadStream());
+                return Ok(result);
+            }
+            return BadRequest("Invalid file.");
+        }
     }
 }
