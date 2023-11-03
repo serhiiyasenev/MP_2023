@@ -39,7 +39,7 @@ namespace BusinessLayer.Services
             });
         }
 
-        public async Task<SendResultModel> PostFileAsync(string fileName,Stream fileStream)
+        public async Task<SendResultModel> PostFileAsync(string fileName, long fileSizeBytes, Stream fileStream)
         {
             return await Task.Run(async () =>
             {
@@ -64,6 +64,7 @@ namespace BusinessLayer.Services
                         {
                             { "FileId", Guid.NewGuid().ToString()         },
                             { "FileName", fileName                        },
+                            { "FileSizeBytes", fileSizeBytes              },
                             { "UploadTime", DateTime.UtcNow.ToString("o") }
                         };
 
@@ -117,6 +118,7 @@ namespace BusinessLayer.Services
                                 {
                                     FileId = Encoding.UTF8.GetString((byte[])headers["FileId"]),
                                     FileName = Encoding.UTF8.GetString((byte[])headers["FileName"]),
+                                    FileSizeBytes = long.Parse(Encoding.UTF8.GetString((byte[])headers["FileSizeBytes"])),
                                     UploadTime = DateTime.Parse(Encoding.UTF8.GetString((byte[])headers["UploadTime"]))
                                 });
                             }
@@ -126,6 +128,7 @@ namespace BusinessLayer.Services
                                 {
                                     FileId = null,
                                     FileName = null,
+                                    FileSizeBytes = null,
                                     UploadTime = null
                                 });
                             } 

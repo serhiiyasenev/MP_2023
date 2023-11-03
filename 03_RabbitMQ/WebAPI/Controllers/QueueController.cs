@@ -30,7 +30,7 @@ namespace WebAPI.Controllers
         {
             if (file.Length > 0 && file.FileName.EndsWith(".pdf") && file.Length <= 5 * 1024 * 1024)
             {
-                var result = await _queueService.PostFileAsync(file.FileName, file.OpenReadStream());
+                var result = await _queueService.PostFileAsync(file.FileName, file.Length, file.OpenReadStream());
                 return Ok(result);
             }
             return BadRequest("Invalid file.");

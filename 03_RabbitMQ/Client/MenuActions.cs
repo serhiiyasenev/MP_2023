@@ -1,5 +1,6 @@
 ﻿using BusinessLayer.Models;
 using Client.Helpers;
+using System.Net.Http.Headers;
 
 namespace Client
 {
@@ -16,6 +17,7 @@ namespace Client
         public Dictionary<int, Func<Task>> Actions = new()
         {
             [0] = SendDateTimeMessageAsync,
+            [1] = SendPdfFileAsync,
         };
 
         public static async Task SendDateTimeMessageAsync()
@@ -26,7 +28,33 @@ namespace Client
 
             PrintColored($"\n{responseModel?.Result}", ConsoleColor.Green);
         }
-       
+
+        public static async Task SendPdfFileAsync()
+        {
+            var filePath = Path.Combine(Directory.GetCurrentDirectory(), "Files", "1_KB_FILE.pdf");
+            using var fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read);
+            using var fileStreamContent = new StreamContent(fileStream);
+            fileStreamContent.Headers.ContentType = new MediaTypeHeaderValue("application/pdf");
+            var content = new MultipartFormDataContent { { fileStreamContent, "file", Path.GetFileName(filePath) } };
+
+            var requestMessage = new HttpRequestMessage(HttpMethod.Post, "Queue/PostFileToQueue");
+            requestMessage.Content = content;
+
+            var responseMessage = await httpClient.SendAsync(requestMessage);
+
+            if (responseMessage.IsSuccessStatusCode)
+            {
+                var responseModel = await responseMessage.GetModelAsync<SendResultModel>();
+                PrintColored($"\n{responseModel?.Result}", ConsoleColor.Green);
+            }
+            else
+            {
+                var errorResponse = await responseMessage.Content.ReadAsStringAsync();
+                PrintColored($"\nError: {errorResponse}", ConsoleColor.Red);
+            }
+        }
+
+
         public void Greetings()
         {
             Console.WriteLine("\n*******************************************************************************");

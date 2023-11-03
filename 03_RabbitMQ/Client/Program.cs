@@ -22,13 +22,13 @@ namespace Client
             while (true)
             {
                 Console.WriteLine("\n0. Send messge to RabbitMQ");
-                Console.WriteLine("1. TBD");
+                Console.WriteLine("1. Send file to RabbitMQ");
                 Console.WriteLine("2. Exit the program\n");
                 Console.Write("Enter your choice:\n");
 
                 if (int.TryParse(Console.ReadLine(), out var choiceInt) && choiceInt >= 0 && choiceInt <= 2)
                 {
-                    if (choiceInt == 10)
+                    if (choiceInt == 2)
                     {
                         // Stop the host before exiting the program
                         await host.StopAsync();
