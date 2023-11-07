@@ -9,29 +9,62 @@ namespace Notifier
     {
         private readonly IHubContext<ChatHub> _hubContext;
         private readonly string _amqpUrl;
-        private readonly string _queueName;
+        private readonly string[] _queueNames;
         private readonly string _downloadedFilesFolder;
+        private IConnection? _connection;
+        private IList<IModel> _channels;
 
         public RabbitMQListenerService(IHubContext<ChatHub> hubContext)
         {
             _hubContext = hubContext;
             _amqpUrl = "amqp://guest:guest@localhost:5672";
-            _queueName = "fileQueue";
+            _queueNames = new[] { "fileQueue", "TestQueue" };
             _downloadedFilesFolder = Path.Combine(Directory.GetCurrentDirectory(), "DownloadedFiles");
+            _channels = new List<IModel>();
+        }
+
+        public override Task StartAsync(CancellationToken cancellationToken)
+        {
+            var factory = new ConnectionFactory { Uri = new Uri(_amqpUrl) };
+            _connection = factory.CreateConnection();
+
+            foreach (var queueName in _queueNames)
+            {
+                var channel = _connection.CreateModel();
+                _channels.Add(channel);
+                channel.QueueDeclare(queue: queueName, durable: true, exclusive: false, autoDelete: false, arguments: null);
+                
+                var consumer = new EventingBasicConsumer(channel);
+                
+                consumer.Received += async (model, ea) => await ProcessMessageAsync(ea);
+                
+                channel.BasicConsume(queue: queueName, autoAck: true, consumer: consumer);
+            }
+
+            return base.StartAsync(cancellationToken);
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            var factory = new ConnectionFactory { Uri = new Uri(_amqpUrl) };
+            while (!stoppingToken.IsCancellationRequested)
+            {
+                await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken);
+            }
+        }
 
-            using var connection = factory.CreateConnection();
-            using var channel = connection.CreateModel();
+        public override Task StopAsync(CancellationToken cancellationToken)
+        {
+            foreach (var channel in _channels)
+            {
+                channel?.Close();
+            }
+            _connection?.Close();
+            return base.StopAsync(cancellationToken);
+        }
 
-            channel.QueueDeclare(queue: _queueName, durable: true, exclusive: false, autoDelete: false, arguments: null);
-
-            var consumer = new EventingBasicConsumer(channel);
-
-            consumer.Received += (model, message) =>
+        private async Task ProcessMessageAsync(BasicDeliverEventArgs message)
+        {
+            await Task.Run(() =>
             {
                 var headers = message.BasicProperties.Headers;
                 if (headers != null)
@@ -46,25 +79,19 @@ namespace Notifier
                     var filePath = Path.Combine(_downloadedFilesFolder, fileName);
                     File.WriteAllBytes(filePath, fileContent);
 
-                    _ = _hubContext.Clients.All.SendAsync("ReceiveMessage", "RabbitMQ Default User", 
+                    _ = _hubContext.Clients.All.SendAsync("ReceiveMessage", "RabbitMQ Default User",
                         $"File was received!" +
                         $"\n\"FileId: {fileId}\"" +
                         $"\n\"FileName: {fileName}\"" +
-                        $"\n\"FileSize: {fileSizeBytes/1024} KB\"" +
-                        $"\n\"UploadTime: {uploadTime}\""); 
+                        $"\n\"FileSize: {fileSizeBytes / 1024} KB\"" +
+                        $"\n\"UploadTime: {uploadTime}\"");
                 }
                 else
                 {
-                    _ = _hubContext.Clients.All.SendAsync("ReceiveMessage", "RabbitMQ Default User", $"File without Headers was received!");
+                    var messageText = Encoding.UTF8.GetString(message.Body.ToArray());
+                    _ = _hubContext.Clients.All.SendAsync("ReceiveMessage", "RabbitMQ Default User", $"{messageText}");
                 }
-            };
-
-            channel.BasicConsume(queue: _queueName, autoAck: true, consumer: consumer);
-
-            while (!stoppingToken.IsCancellationRequested)
-            {
-                await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken);
-            }
+            });
         }
     }
 }
