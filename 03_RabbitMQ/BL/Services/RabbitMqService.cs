@@ -118,7 +118,7 @@ namespace BusinessLayer.Services
                                 {
                                     FileId = Encoding.UTF8.GetString((byte[])headers["FileId"]),
                                     FileName = Encoding.UTF8.GetString((byte[])headers["FileName"]),
-                                    FileSizeBytes = long.Parse(Encoding.UTF8.GetString((byte[])headers["FileSizeBytes"])),
+                                    FileSizeBytes = long.Parse(headers["FileSizeBytes"].ToString()),
                                     UploadTime = DateTime.Parse(Encoding.UTF8.GetString((byte[])headers["UploadTime"]))
                                 });
                             }
