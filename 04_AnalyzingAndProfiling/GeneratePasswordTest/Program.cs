@@ -1,4 +1,5 @@
-﻿using System.Security.Cryptography;
+﻿using System.Diagnostics;
+using System.Security.Cryptography;
 
 namespace GeneratePasswordTest
 {
@@ -6,23 +7,41 @@ namespace GeneratePasswordTest
     {
         static void Main(string[] args)
         {
+            Console.WriteLine("ORIGINAL GeneratePasswordHashUsingSalt START");
+            ExecutePasswordGeneration(GeneratePasswordHashUsingSalt);
+            Console.WriteLine("ORIGINAL GeneratePasswordHashUsingSalt END\n");
+
+            Console.WriteLine("UPD1 GeneratePasswordHashUsingSalt1 START");
+            ExecutePasswordGeneration(GeneratePasswordHashUsingSalt1);
+            Console.WriteLine("UPD1 GeneratePasswordHashUsingSalt1 END\n");
+
+            Console.WriteLine("UPD2 GeneratePasswordHashUsingSalt2 START");
+            ExecutePasswordGeneration(GeneratePasswordHashUsingSalt2);
+            Console.WriteLine("UPD2 GeneratePasswordHashUsingSalt2 END\n");
+
+            Console.Read();
+        }
+
+        private static void ExecutePasswordGeneration(Func<string, byte[], string> func)
+        {
             int attempts = 1000;
-            TimeSpan time1 = new TimeSpan();
+            Stopwatch stopwatch = Stopwatch.StartNew();
+
             for (int i = 0; i < attempts; i++)
             {
-                var stopwatch = System.Diagnostics.Stopwatch.StartNew();
-                GeneratePasswordHashUsingSalt($"passwordText + {i}", new byte[32]);
-                stopwatch.Stop();
-                time1 += stopwatch.Elapsed;;
+                func($"passwordText{i}", new byte[32]);
             }
-            Console.WriteLine($"Sum time1 = '{time1}'");
-            var avgTime1 = time1 / attempts;
-            Console.WriteLine($"Avg time1 = '{avgTime1}'");
-            Console.Read();
+
+            stopwatch.Stop();
+
+            Console.WriteLine($"Total time = '{stopwatch.Elapsed}'");
+            var avgTime = stopwatch.Elapsed / attempts;
+            Console.WriteLine($"Avg time = '{avgTime}'");
         }
 
         public static string GeneratePasswordHashUsingSalt(string passwordText, byte[] salt)
         {
+
             var iterate = 10000;
             var pbkdf2 = new Rfc2898DeriveBytes(passwordText, salt, iterate);
             byte[] hash = pbkdf2.GetBytes(20);
@@ -34,6 +53,37 @@ namespace GeneratePasswordTest
             var passwordHash = Convert.ToBase64String(hashBytes);
 
             return passwordHash;
+
+        }
+
+        public static string GeneratePasswordHashUsingSalt1(string passwordText, byte[] salt)
+        {
+            var iterate = 10000;
+            using (var pbkdf2 = new Rfc2898DeriveBytes(passwordText, salt, iterate))
+            {
+                byte[] hash = pbkdf2.GetBytes(20);
+                byte[] hashBytes = new byte[salt.Length + hash.Length];
+
+                Buffer.BlockCopy(salt, 0, hashBytes, 0, salt.Length);
+                Buffer.BlockCopy(hash, 0, hashBytes, salt.Length, hash.Length);
+
+                return Convert.ToBase64String(hashBytes);
+            }
+        }
+
+        public static string GeneratePasswordHashUsingSalt2(string passwordText, byte[] salt)
+        {
+            var iterate = 10000;
+            using (var pbkdf2 = new Rfc2898DeriveBytes(passwordText, salt, iterate))
+            {
+                byte[] hash = pbkdf2.GetBytes(20);
+
+                Span<byte> hashBytes = stackalloc byte[salt.Length + hash.Length];
+                salt.CopyTo(hashBytes);
+                hash.CopyTo(hashBytes.Slice(salt.Length));
+
+                return Convert.ToBase64String(hashBytes.ToArray());
+            }
         }
     }
 }
