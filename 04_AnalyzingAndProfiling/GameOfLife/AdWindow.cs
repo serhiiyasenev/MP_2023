@@ -66,7 +66,6 @@ namespace GameOfLife
             Background = myBrush;
             link = "http://example.com";
 
-            // Циклічне переключення зображення
             imgNmb = imgNmb >= 3 ? 1 : imgNmb + 1;
         }
     }
