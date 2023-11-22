@@ -160,6 +160,7 @@ namespace GameOfLife
             {
                 for (int y = Math.Max(0, j - 1); y <= Math.Min(j + 1, SizeY - 1); y++)
                 {
+                    // ADDITIONALLY WE CAN CHECK HERE IF COUNT == 4 THEN BREAK;
                     if (x != i || y != j)
                     {
                         if (cells[x, y].IsAlive)
