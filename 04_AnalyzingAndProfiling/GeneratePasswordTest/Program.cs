@@ -24,11 +24,21 @@ namespace GeneratePasswordTest
 
         private static void ExecutePasswordGeneration(Func<string, byte[], string> func)
         {
-            int attempts = 1000;
+            int attempts = 100000;
             Stopwatch stopwatch = Stopwatch.StartNew();
 
             for (int i = 0; i < attempts; i++)
             {
+                try
+                {
+                    var filestream = new FileStream(Path.Combine(Directory.GetCurrentDirectory(), "TestFile.txt"), FileMode.Open);
+                    var byteArray = new byte[filestream.Length];
+                    filestream.Read(byteArray, 0, byteArray.Length);
+                }
+                catch (Exception)
+                {
+                }
+
                 func($"passwordText{i}", new byte[32]);
             }
 
@@ -42,7 +52,7 @@ namespace GeneratePasswordTest
         public static string GeneratePasswordHashUsingSalt(string passwordText, byte[] salt)
         {
 
-            var iterate = 10000;
+            var iterate = 100000;
             var pbkdf2 = new Rfc2898DeriveBytes(passwordText, salt, iterate);
             byte[] hash = pbkdf2.GetBytes(20);
 
@@ -73,7 +83,7 @@ namespace GeneratePasswordTest
 
         public static string GeneratePasswordHashUsingSalt2(string passwordText, byte[] salt)
         {
-            var iterate = 10000;
+            var iterate = 100000;
             using (var pbkdf2 = new Rfc2898DeriveBytes(passwordText, salt, iterate))
             {
                 byte[] hash = pbkdf2.GetBytes(20);
