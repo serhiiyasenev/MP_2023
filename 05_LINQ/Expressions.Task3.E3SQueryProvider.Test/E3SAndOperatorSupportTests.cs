@@ -18,7 +18,7 @@ namespace Expressions.Task3.E3SQueryProvider.Test
                 = query => query.Where(e => e.Workstation == "EPRUIZHW006" && e.Manager.StartsWith("John") && e.Office == "Kyiv");
 
             string translated = translator.Translate(expression);
-            Assert.Equal("Workstation:(EPRUIZHW006) AND Manager:(John*)", translated);
+            Assert.Equal("Workstation:(EPRUIZHW006) AND Manager:(John*) AND Office:(Kyiv)", translated);
         }
 
         [Fact]
