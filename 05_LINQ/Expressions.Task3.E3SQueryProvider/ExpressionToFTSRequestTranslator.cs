@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 
@@ -25,12 +24,34 @@ namespace Expressions.Task3.E3SQueryProvider
 
         protected override Expression VisitMethodCall(MethodCallExpression node)
         {
-            if (node.Method.DeclaringType == typeof(Queryable)
-                && node.Method.Name == "Where")
+            if (node.Method.DeclaringType == typeof(string))
             {
-                var predicate = node.Arguments[1];
-                Visit(predicate);
+                var method = node.Method.Name;
+                var obj = (MemberExpression)node.Object;
+                var arg = (ConstantExpression)node.Arguments[0];
 
+                Visit(obj);
+                _resultStringBuilder.Append("(");
+
+                switch (method)
+                {
+                    case "StartsWith":
+                        _resultStringBuilder.Append(arg.Value + "*");
+                        break;
+                    case "EndsWith":
+                        _resultStringBuilder.Append("*" + arg.Value);
+                        break;
+                    case "Contains":
+                        _resultStringBuilder.Append("*" + arg.Value + "*");
+                        break;
+                    case "Equals":
+                        _resultStringBuilder.Append(arg.Value);
+                        break;
+                    default:
+                        throw new NotSupportedException($"Method '{method}' is not supported");
+                }
+
+                _resultStringBuilder.Append(")");
                 return node;
             }
             return base.VisitMethodCall(node);
@@ -38,24 +59,41 @@ namespace Expressions.Task3.E3SQueryProvider
 
         protected override Expression VisitBinary(BinaryExpression node)
         {
-            switch (node.NodeType)
+            if (node.NodeType == ExpressionType.Equal)
             {
-                case ExpressionType.Equal:
-                    if (node.Left.NodeType != ExpressionType.MemberAccess)
-                        throw new NotSupportedException($"Left operand should be property or field: {node.NodeType}");
+                MemberExpression memberExpr = null;
+                ConstantExpression constExpr = null;
 
-                    if (node.Right.NodeType != ExpressionType.Constant)
-                        throw new NotSupportedException($"Right operand should be constant: {node.NodeType}");
+                // Select MemberExpression and ConstantExpression
+                if (node.Left.NodeType == ExpressionType.MemberAccess && node.Right.NodeType == ExpressionType.Constant)
+                {
+                    memberExpr = (MemberExpression)node.Left;
+                    constExpr = (ConstantExpression)node.Right;
+                }
+                else if (node.Left.NodeType == ExpressionType.Constant && node.Right.NodeType == ExpressionType.MemberAccess)
+                {
+                    memberExpr = (MemberExpression)node.Right;
+                    constExpr = (ConstantExpression)node.Left;
+                }
 
-                    Visit(node.Left);
-                    _resultStringBuilder.Append("(");
-                    Visit(node.Right);
-                    _resultStringBuilder.Append(")");
-                    break;
+                if (memberExpr == null || constExpr == null)
+                    throw new NotSupportedException("One of the operands should be constant and other should be property or field");
 
-                default:
-                    throw new NotSupportedException($"Operation '{node.NodeType}' is not supported");
-            };
+                Visit(memberExpr);
+                _resultStringBuilder.Append("(");
+                Visit(constExpr);
+                _resultStringBuilder.Append(")");
+            }
+            else if (node.NodeType == ExpressionType.AndAlso)
+            {
+                Visit(node.Left);
+                _resultStringBuilder.Append(" AND ");
+                Visit(node.Right);
+            }
+            else
+            {
+                throw new NotSupportedException($"Operation '{node.NodeType}' is not supported");
+            }
 
             return node;
         }
