@@ -1,12 +1,6 @@
-﻿/*
- * Create a class based on ExpressionVisitor, which makes expression tree transformation:
- * 1. converts expressions like <variable> + 1 to increment operations, <variable> - 1 - into decrement operations.
- * 2. changes parameter values in a lambda expression to constants, taking the following as transformation parameters:
- *    - source expression;
- *    - dictionary: <parameter name: value for replacement>
- * The results could be printed in console or checked via Debugger using any Visualizer.
- */
-using System;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq.Expressions;
 
 namespace ExpressionTrees.Task1.ExpressionsTransformer
 {
@@ -17,7 +11,19 @@ namespace ExpressionTrees.Task1.ExpressionsTransformer
             Console.WriteLine("Expression Visitor for increment/decrement.");
             Console.WriteLine();
 
-            // todo: feel free to add your code here
+            Expression<Func<int, int>> exprInc = x => x + 1;
+            Expression<Func<int, int>> exprDec = x => x - 1;
+            var parametersReplacement = new Dictionary<string, object> { { "k", 5 } };
+
+            var visitor = new IncDecExpressionVisitor(parametersReplacement);
+            var modifiedExprInc = (Expression<Func<int, int>>)visitor.Visit(exprInc);
+            var modifiedExprDec = (Expression<Func<int, int>>)visitor.Visit(exprDec);
+
+            Console.WriteLine("Original ExpressionInc: " + exprInc);
+            Console.WriteLine("Modified ExpressionInc: " + modifiedExprInc);
+            Console.WriteLine();
+            Console.WriteLine("Original ExpressionDec: " + exprDec);
+            Console.WriteLine("Modified ExpressionDec: " + modifiedExprDec);
 
             Console.ReadLine();
         }
