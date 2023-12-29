@@ -1,0 +1,5 @@
+to run in docker:
+
+1. "docker build -t mywebapi ."
+2. "docker run -d -p 8080:80 --name mywebapi_container mywebapi"
+3. open "http://localhost:8080/swagger"
