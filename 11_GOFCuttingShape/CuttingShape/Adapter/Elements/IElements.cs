@@ -1,4 +1,4 @@
-﻿namespace _11_GOFCuttingShape.Adapter
+﻿namespace _11_GOFCuttingShape.Adapter.Elements
 {
     public interface IElements<T>
     {

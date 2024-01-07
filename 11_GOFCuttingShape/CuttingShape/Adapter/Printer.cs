@@ -6,7 +6,7 @@
         {
             foreach (var item in container.Items)
             {
-                Console.WriteLine(item.ToString());
+                Console.WriteLine(item?.ToString());
             }
         }
     }
