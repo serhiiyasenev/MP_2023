@@ -1,14 +1,18 @@
 ﻿namespace _11_GOFCuttingShape.Composite
 {
     public class LabelText
-    { 
-        public LabelText(string value)
+    {
+        private string Value { get; }
+
+        public LabelText(string value)
         {
-        }
+            Value = value;
+        }
 
         public string ConvertToString()
         {
-            return "";
-        }
+            return $"<label value='{Value}'/>";
+        }
     }
+
 }
