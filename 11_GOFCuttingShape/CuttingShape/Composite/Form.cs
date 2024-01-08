@@ -1,6 +1,6 @@
 ﻿namespace _11_GOFCuttingShape.Composite
 {
-    internal class Form
+    public class Form
     {
     }
 }
