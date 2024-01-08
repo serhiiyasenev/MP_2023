@@ -5,7 +5,7 @@ namespace _11_GOFCuttingShape.Composite
     public class Form : IFormComponent
     {
         private string Name;
-        private List<IFormComponent> components = new List<IFormComponent>();
+        private List<IFormComponent> Components = new List<IFormComponent>();
 
         public Form(string name)
         {
@@ -14,7 +14,7 @@ namespace _11_GOFCuttingShape.Composite
 
         public void AddComponent(IFormComponent component)
         {
-            components.Add(component);
+            Components.Add(component);
         }
 
         public string ConvertToString()
@@ -22,7 +22,7 @@ namespace _11_GOFCuttingShape.Composite
             var formContent = new StringBuilder();
             formContent.Append($"<form name='{Name}'>\n");
 
-            foreach (var component in components)
+            foreach (var component in Components)
             {
                 formContent.AppendLine($"  {component.ConvertToString()}");
             }
