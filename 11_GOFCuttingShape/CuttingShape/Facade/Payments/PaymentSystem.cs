@@ -1,11 +1,11 @@
 ﻿namespace _11_GOFCuttingShape.Facade.Payments
 {
-    public class PaymentSystem : IPaymentSystem
+    internal class PaymentSystem : IPaymentSystem
     {
         public bool MakePayment(Payment payment)
         {
-            throw new NotImplementedException();
+            Console.WriteLine($"The payment `{payment.PaymentId}` has been made with amount `{payment.Amount}`.");
+            return true;
         }
     }
-
 }

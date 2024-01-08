@@ -1,12 +1,10 @@
-﻿using _11_GOFCuttingShape.Facade.Payments;
-
-namespace _11_GOFCuttingShape.Facade.Invoices
+﻿namespace _11_GOFCuttingShape.Facade.Invoices
 {
-    public class InvoiceSystem : IInvoiceSystem
+    internal class InvoiceSystem : IInvoiceSystem
     {
-        public void SendInvoice(Payment invoice)
+        public void SendInvoice(Invoice invoice)
         {
-            throw new NotImplementedException();
+            Console.WriteLine($"Invoice `{invoice.InvoiceId}` with amount `{invoice.Amount}` was sent to email: `{invoice.Email}`.");
         }
     }
 }

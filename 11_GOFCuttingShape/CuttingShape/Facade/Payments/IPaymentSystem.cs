@@ -1,6 +1,6 @@
 ﻿namespace _11_GOFCuttingShape.Facade.Payments
 {
-    interface IPaymentSystem
+    public interface IPaymentSystem
     {
         bool MakePayment(Payment payment);
     }

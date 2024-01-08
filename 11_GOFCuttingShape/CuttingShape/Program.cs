@@ -1,6 +1,10 @@
 ﻿using _11_GOFCuttingShape.Adapter.Elements;
 using _11_GOFCuttingShape.Adapter;
 using _11_GOFCuttingShape.Composite;
+using _11_GOFCuttingShape.Facade.Invoices;
+using _11_GOFCuttingShape.Facade.Payments;
+using _11_GOFCuttingShape.Facade.Products;
+using _11_GOFCuttingShape.Facade;
 
 namespace _11_GOFCuttingShape
 {
@@ -32,6 +36,27 @@ namespace _11_GOFCuttingShape
             Console.WriteLine(form.ConvertToString());
             Console.WriteLine("\n-----Composite 2 End-----\n");
 
+            // 4. Facade
+            Console.WriteLine("-----Facade Start-----\n");
+            IProductCatalog productCatalog = new ProductCatalog();
+            IPaymentSystem paymentSystem = new PaymentSystem();
+            IInvoiceSystem invoiceSystem = new InvoiceSystem();
+
+            OrderFacade orderFacade = new OrderFacade(productCatalog, paymentSystem, invoiceSystem);
+
+            try
+            {
+                orderFacade.PlaceOrder(productId: 1, quantity: 2, email: "customer1@example.com");
+                orderFacade.PlaceOrder(productId: 2, quantity: 4, email: "customer2@example.com");
+                orderFacade.PlaceOrder(productId: 3, quantity: 6, email: "customer3@example.com");
+
+                Console.WriteLine("\nOrders placed successfully.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Order failed: {ex.Message}");
+            }
+            Console.WriteLine("\n-----Facade End-----\n");
 
             Console.ReadLine();
         }
