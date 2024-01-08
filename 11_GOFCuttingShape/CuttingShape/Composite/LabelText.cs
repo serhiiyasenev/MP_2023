@@ -1,6 +1,6 @@
 ﻿namespace _11_GOFCuttingShape.Composite
 {
-    public class LabelText
+    public class LabelText : IFormComponent
     {
         private string Value { get; }
 
