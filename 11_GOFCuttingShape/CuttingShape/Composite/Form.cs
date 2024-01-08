@@ -15,7 +15,7 @@ namespace _11_GOFCuttingShape.Composite
         public void AddComponent(IFormComponent component)
         {
             Components.Add(component);
-        }
+        }
 
         public string ConvertToString()
         {
@@ -29,6 +29,6 @@ namespace _11_GOFCuttingShape.Composite
 
             formContent.Append("</form>");
             return formContent.ToString();
-        }
+        }
     }
 }
