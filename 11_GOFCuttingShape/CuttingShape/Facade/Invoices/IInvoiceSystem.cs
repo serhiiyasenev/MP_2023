@@ -1,9 +1,7 @@
-﻿using _11_GOFCuttingShape.Facade.Payments;
-
-namespace _11_GOFCuttingShape.Facade.Invoices
+﻿namespace _11_GOFCuttingShape.Facade.Invoices
 {
-    interface IInvoiceSystem
+    public interface IInvoiceSystem
     {
-        void SendInvoice(Payment invoice);
+        void SendInvoice(Invoice invoice);
     }
 }

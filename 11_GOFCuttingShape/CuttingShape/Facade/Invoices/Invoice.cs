@@ -2,7 +2,8 @@
 {
     public class Invoice
     {
-        public string InvoiceId { get; set; }
-        public int InvoiceAmount { get; set; }
+        public int InvoiceId { get; set; }
+        public decimal Amount { get; set; }
+        public string Email { get; set; }
     }
 }

@@ -1,22 +1,34 @@
-﻿namespace _11_GOFCuttingShape.Composite
+﻿using System.Text;
+
+namespace _11_GOFCuttingShape.Composite
 {
-    public class Form
+    public class Form : IFormComponent
     {
-        string name;
+        private string Name;
+        private List<IFormComponent> Components = new List<IFormComponent>();
 
         public Form(string name)
         {
-            this.name = name;
+            Name = name;
         }
 
-        public void AddComponent(string name)
+        public void AddComponent(IFormComponent component)
         {
-            
+            Components.Add(component);
         }
 
         public string ConvertToString()
         {
-            return "";
+            var formContent = new StringBuilder();
+            formContent.Append($"<form name='{Name}'>\n");
+
+            foreach (var component in Components)
+            {
+                formContent.AppendLine($"  {component.ConvertToString()}");
+            }
+
+            formContent.Append("</form>");
+            return formContent.ToString();
         }
     }
 }

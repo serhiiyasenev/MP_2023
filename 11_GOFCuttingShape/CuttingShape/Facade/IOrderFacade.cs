@@ -1,7 +1,7 @@
 ﻿namespace _11_GOFCuttingShape.Facade
 {
-    interface IOrderFacade
+    public interface IOrderFacade
     {
-        void PlaceOrder(string productId, int quantity, string email);
+        void PlaceOrder(int productId, int quantity, string email);
     }
 }

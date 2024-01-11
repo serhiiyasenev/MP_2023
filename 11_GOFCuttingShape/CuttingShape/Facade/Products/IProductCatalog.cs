@@ -1,8 +1,8 @@
 ﻿namespace _11_GOFCuttingShape.Facade.Products
 {
-    interface IProductCatalog
+    public interface IProductCatalog
     {
-        Product GetProductDetails(string productId);
+        Product GetProductDetails(int productId);
     }
 
 }

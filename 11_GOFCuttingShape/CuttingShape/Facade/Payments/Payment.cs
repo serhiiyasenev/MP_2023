@@ -2,7 +2,7 @@
 {
     public class Payment
     {
-        public string PaymentId { get; set; }
-        public int PaymentAmount { get; set; }
+        public int PaymentId { get; set; }
+        public decimal Amount { get; set; }
     }
 }

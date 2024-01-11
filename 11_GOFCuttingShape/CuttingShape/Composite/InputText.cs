@@ -1,15 +1,19 @@
 ﻿namespace _11_GOFCuttingShape.Composite
 {
-    public class InputText
-    { 
-        public InputText(string name, string value)
+    public class InputText : IFormComponent
+    {
+        private string Name { get; }
+        private string Value { get; }
+
+        public InputText(string name, string value)
         {
-        }
+            Name = name;
+            Value = value;
+        }
 
         public string ConvertToString()
         {
-            return "";
-        }
+            return $"<inputText name='{Name}' value='{Value}'/>";
+        }
     }
-
 }
